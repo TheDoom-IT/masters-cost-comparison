@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en">
+<head>
+    {{> head }}
+</head>
+<body>
+<div class="container p-3">
+    <h1 class="text-center">Create new job</h1>
+
+    <div class="row justify-content-center">
+        <div class="col-md-6 border rounded p-4">
+            <form method="POST" action="/jobs" enctype="multipart/form-data">
+                <div class="row mb-2">
+                    <div class="col-md-6">
+                        <label class="form-label" for="name">Name</label>
+                        <input id="name" class="form-control" type="text" name="name" placeholder="Name" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" for="file">File</label>
+                        <input id="file" class="form-control" type="file" name="file" placeholder="File" required>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-6">
+                        <label class="form-label" for="type">Type</label>
+                        <select class="form-select" name="type" id="type" required>
+                            {{#each types as |type|}}
+                                <option value="{{type}}">{{type}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                </div>
+                <div class="row justify-content-end mt-2">
+                    <div class="col-auto">
+                        <button class="btn btn-dark" type="submit">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{> scriptsBottom }}
+</body>
+</html>

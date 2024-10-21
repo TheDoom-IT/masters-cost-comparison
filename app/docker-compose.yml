@@ -1,0 +1,12 @@
+name: master
+
+services:
+  db:
+    container_name: master-db
+    image: postgres:16.4
+    environment:
+      POSTGRES_USER: master
+      POSTGRES_PASSWORD: master
+      POSTGRES_DB: master
+    ports:
+      - "5432:5432"
