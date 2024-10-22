@@ -1,12 +1,13 @@
 import sharp from "sharp";
 import { StorageClient } from "shared";
+import { DatabaseClient } from "shared/dist/db/database-client.js";
 
 export const processImage = async (imageId: string) => {
     const start = new Date().getTime();
 
-    const image = await StorageClient.instance.getObject(imageId);
-
-    const size = image.length / 1024 / 1024;
+    const image = await StorageClient.instance.getObject(
+        StorageClient.getImageKey(imageId),
+    );
 
     const sharpObject = sharp(image);
 
@@ -14,25 +15,17 @@ export const processImage = async (imageId: string) => {
 
     const thumbnail = await sharpObject.resize(200, 200).jpeg().toBuffer();
 
-    await StorageClient.instance.putObject(
-        StorageClient.getBlurredImageKey(imageId),
-        blurredImage,
-    );
+    const blurredImageKey = StorageClient.getBlurredImageKey(imageId);
+    await StorageClient.instance.putObject(blurredImageKey, blurredImage);
 
-    await StorageClient.instance.putObject(
-        StorageClient.getThumbnailKey(imageId),
-        thumbnail,
-    );
-
-    // TODO: save it in db
+    const thumbnailKey = StorageClient.getThumbnailKey(imageId);
+    await StorageClient.instance.putObject(thumbnailKey, thumbnail);
 
     const time = new Date().getTime() - start;
 
-    return {
-        result: "success",
-        size,
-        blurredSize: blurredImage.length / 1024 / 1024,
-        thumbnailSize: thumbnail.length / 1024 / 1024,
-        time,
-    };
+    await DatabaseClient.instance.updateImageJob(imageId, {
+        processingTime: time,
+        thumbnailBucketKey: thumbnailKey,
+        blurredBucketKey: blurredImageKey,
+    });
 };

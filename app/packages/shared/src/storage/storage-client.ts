@@ -3,6 +3,7 @@ import {
     PutObjectCommand,
     GetObjectCommand,
 } from "@aws-sdk/client-s3";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export class StorageClient {
     private readonly client: S3Client;
@@ -78,5 +79,15 @@ export class StorageClient {
 
         const byteArray = await body.transformToByteArray();
         return Buffer.from(byteArray);
+    }
+
+    async getPresignedUrl(key: string): Promise<string> {
+        const command = new GetObjectCommand({
+            Bucket: this.bucketName,
+            Key: key,
+        });
+        return await getSignedUrl(this.client, command, {
+            expiresIn: 3600,
+        });
     }
 }

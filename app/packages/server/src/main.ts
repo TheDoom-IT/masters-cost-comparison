@@ -9,6 +9,7 @@ import { applyJobsRoutes } from "./routes/jobs.js";
 import "dotenv/config";
 import { applyHomeRoutes } from "./routes/home.js";
 import { QueueService } from "./queue/queue-service.js";
+import { DatabaseClient } from "shared/dist/db/database-client.js";
 
 const main = async () => {
     const fastify = Fastify({
@@ -35,6 +36,7 @@ const main = async () => {
         limits: { fileSize: 10 * 1024 * 1024 },
     });
 
+    await DatabaseClient.instance.migrate();
     await QueueService.instance.initQueue();
 
     applyHomeRoutes(fastify);

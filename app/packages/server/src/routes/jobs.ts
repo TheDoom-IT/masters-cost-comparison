@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { JobType, StorageClient } from "shared";
 import { QueueService } from "../queue/queue-service.js";
 import * as crypto from "crypto";
+import { DatabaseClient } from "shared/dist/db/database-client.js";
 
 export const applyJobsRoutes = (fastify: FastifyInstance) => {
     fastify.get(
@@ -13,8 +14,25 @@ export const applyJobsRoutes = (fastify: FastifyInstance) => {
 
     fastify.get(
         "/jobs",
-        function (request: FastifyRequest, reply: FastifyReply) {
-            reply.view("jobs/index");
+        async function (request: FastifyRequest, reply: FastifyReply) {
+            const allJobs = await DatabaseClient.instance.getImageJobs();
+            const jobs = await Promise.all(
+                allJobs.map(async (job) => ({
+                    id: job.id,
+                    processingTime: job.processingTime,
+                    thumbnail: job.thumbnailBucketKey
+                        ? await StorageClient.instance.getPresignedUrl(
+                              job.thumbnailBucketKey,
+                          )
+                        : undefined,
+                    blurred: job.blurredBucketKey
+                        ? await StorageClient.instance.getPresignedUrl(
+                              job.blurredBucketKey,
+                          )
+                        : undefined,
+                })),
+            );
+            return reply.viewAsync("jobs/index", { jobs });
         },
     );
 
@@ -42,7 +60,10 @@ export const applyJobsRoutes = (fastify: FastifyInstance) => {
                 fileBuffer,
             );
 
-            // TODO: save it in db
+            await DatabaseClient.instance.addImageJob(
+                id,
+                StorageClient.getImageKey(id),
+            );
 
             const jobData = {
                 name,

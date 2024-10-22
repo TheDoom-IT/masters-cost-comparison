@@ -19,11 +19,8 @@ const main = async () => {
         for (const job of jobs) {
             const data: JobData = job.data as JobData;
 
-            console.log(`Processing job ${job.id} with name ${data.name}`);
-
             if (data.type === JobType.IMAGE_PROCESSING) {
-                const result = await processImage(data.imageId);
-                console.log(result);
+                await processImage(data.imageId);
             }
         }
     });
