@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import { JobType } from "shared";
+import { JobType, StorageClient } from "shared";
 import { QueueService } from "../queue/queue-service.js";
+import * as crypto from "crypto";
 
 export const applyJobsRoutes = (fastify: FastifyInstance) => {
     fastify.get(
@@ -35,10 +36,18 @@ export const applyJobsRoutes = (fastify: FastifyInstance) => {
             const type: JobType = body.type.value;
             const fileBuffer = await body.file.toBuffer();
 
+            const id = crypto.randomUUID();
+            await StorageClient.instance.putObject(
+                StorageClient.getImageKey(id),
+                fileBuffer,
+            );
+
+            // TODO: save it in db
+
             const jobData = {
                 name,
                 type,
-                file: fileBuffer.toString("base64"),
+                imageId: id,
             };
 
             await QueueService.instance.createJob(jobData);

@@ -35,10 +35,10 @@ const main = async () => {
         limits: { fileSize: 10 * 1024 * 1024 },
     });
 
+    await QueueService.instance.initQueue();
+
     applyHomeRoutes(fastify);
     applyJobsRoutes(fastify);
-
-    await QueueService.instance.initQueue();
 
     try {
         await fastify.listen({ port: 3000 });

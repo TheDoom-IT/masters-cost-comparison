@@ -11,6 +11,8 @@ const main = async () => {
 
     await boss.start();
 
+    boss.on("error", console.error);
+
     await boss.work(DEFAULT_QUEUE, { batchSize: 2 }, async (jobs) => {
         console.log(`Received ${jobs.length} jobs.`);
 
@@ -20,8 +22,7 @@ const main = async () => {
             console.log(`Processing job ${job.id} with name ${data.name}`);
 
             if (data.type === JobType.IMAGE_PROCESSING) {
-                const image = Buffer.from(data.file, "base64");
-                const result = await processImage(image);
+                const result = await processImage(data.imageId);
                 console.log(result);
             }
         }

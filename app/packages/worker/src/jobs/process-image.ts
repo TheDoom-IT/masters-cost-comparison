@@ -1,7 +1,10 @@
 import sharp from "sharp";
+import { StorageClient } from "shared";
 
-export const processImage = async (image: Buffer) => {
+export const processImage = async (imageId: string) => {
     const start = new Date().getTime();
+
+    const image = await StorageClient.instance.getObject(imageId);
 
     const size = image.length / 1024 / 1024;
 
@@ -11,7 +14,17 @@ export const processImage = async (image: Buffer) => {
 
     const thumbnail = await sharpObject.resize(200, 200).jpeg().toBuffer();
 
-    // TODO: save file to storage
+    await StorageClient.instance.putObject(
+        StorageClient.getBlurredImageKey(imageId),
+        blurredImage,
+    );
+
+    await StorageClient.instance.putObject(
+        StorageClient.getThumbnailKey(imageId),
+        thumbnail,
+    );
+
+    // TODO: save it in db
 
     const time = new Date().getTime() - start;
 
