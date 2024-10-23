@@ -13,7 +13,10 @@ export const processImage = async (imageId: string) => {
 
     const blurredImage = await sharpObject.clone().blur(100).jpeg().toBuffer();
 
-    const thumbnail = await sharpObject.resize(200, 200).jpeg().toBuffer();
+    const thumbnail = await sharpObject
+        .resize(200, 200, { fit: "inside" })
+        .png()
+        .toBuffer();
 
     const blurredImageKey = StorageClient.getBlurredImageKey(imageId);
     await StorageClient.instance.putObject(blurredImageKey, blurredImage);

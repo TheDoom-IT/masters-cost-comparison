@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc",
-    "dev": "tsx watch --tsconfig ./tsconfig.json src/main.ts",
-    "start": "node dist/index.js"
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js"
   },
   "author": "",
   "license": "ISC",

@@ -7,6 +7,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
 export class StorageClient {
     private readonly client: S3Client;
+    private readonly publicClient: S3Client;
     private static _instance: StorageClient;
 
     static getImageKey(imageId: string) {
@@ -18,22 +19,36 @@ export class StorageClient {
     }
 
     static getThumbnailKey(imageId: string) {
-        return `${imageId}-thumbnail.jpeg`;
+        return `${imageId}-thumbnail.png`;
     }
 
     private constructor(
         private readonly bucketName: string,
         endpoint?: string,
+        publicEndpoint?: string,
         credentials?: {
             accessKeyId: string;
             secretAccessKey: string;
         },
+        region?: string,
     ) {
         this.client = new S3Client({
             endpoint,
             credentials,
+            region,
             forcePathStyle: true,
         });
+
+        if (publicEndpoint) {
+            this.publicClient = new S3Client({
+                endpoint: publicEndpoint,
+                credentials,
+                region,
+                forcePathStyle: true,
+            });
+        } else {
+            this.publicClient = this.client;
+        }
     }
 
     static get instance(): StorageClient {
@@ -48,7 +63,9 @@ export class StorageClient {
             this._instance = new StorageClient(
                 process.env.BUCKET_NAME!,
                 process.env.STORAGE_ENDPOINT,
+                process.env.STORAGE_PUBLIC_ENDPOINT,
                 credentials,
+                process.env.BUCKET_REGION,
             );
         }
 
@@ -86,7 +103,7 @@ export class StorageClient {
             Bucket: this.bucketName,
             Key: key,
         });
-        return await getSignedUrl(this.client, command, {
+        return await getSignedUrl(this.publicClient, command, {
             expiresIn: 3600,
         });
     }

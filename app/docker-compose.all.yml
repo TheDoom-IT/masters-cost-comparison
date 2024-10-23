@@ -1,0 +1,55 @@
+name: master
+
+services:
+  server:
+    container_name: master-server
+    build:
+      context: .
+      dockerfile: docker/server.Dockerfile
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+      storage:
+        condition: service_started
+  worker:
+    container_name: master-worker
+    build:
+      context: .
+      dockerfile: docker/worker.Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      storage:
+        condition: service_started
+  db:
+    container_name: master-db
+    image: postgres:16.4
+    environment:
+      POSTGRES_USER: master
+      POSTGRES_PASSWORD: master
+      POSTGRES_DB: master
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "master"]
+      interval: 2s
+      retries: 5
+      start_period: 20s
+      timeout: 5s
+    ports:
+      - "5432:5432"
+    volumes:
+      - "./data/postgresql:/custom/mount:/var/lib/postgresql/data"
+  storage:
+    container_name: master-storage
+    image: minio/minio:RELEASE.2024-10-13T13-34-11Z
+    command: [ "server", "/data", "--console-address", ":9001"]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - "./data/minio:/data"
