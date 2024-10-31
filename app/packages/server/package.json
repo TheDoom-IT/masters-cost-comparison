@@ -12,6 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-sqs": "^3.682.0",
+    "@fastify/aws-lambda": "^5.0.0",
     "@fastify/multipart": "^9.0.1",
     "@fastify/static": "^8.0.2",
     "@fastify/view": "^10.0.1",

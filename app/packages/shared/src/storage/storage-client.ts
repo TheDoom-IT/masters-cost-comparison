@@ -8,30 +8,21 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 export class StorageClient {
     private readonly client: S3Client;
     private readonly publicClient: S3Client;
-    private static _instance: StorageClient;
+    private readonly bucketName: string;
 
-    static getImageKey(imageId: string) {
-        return `${imageId}.jpeg`;
-    }
+    constructor() {
+        const credentials = process.env.STORAGE_ENDPOINT
+            ? {
+                  accessKeyId: process.env.STORAGE_ACCESS_KEY_ID!,
+                  secretAccessKey: process.env.STORAGE_SECRET!,
+              }
+            : undefined;
 
-    static getBlurredImageKey(imageId: string) {
-        return `${imageId}-blurred.jpeg`;
-    }
+        this.bucketName = process.env.BUCKET_NAME!;
+        const endpoint = process.env.STORAGE_ENDPOINT;
+        const publicEndpoint = process.env.STORAGE_PUBLIC_ENDPOINT;
+        const region = process.env.BUCKET_REGION;
 
-    static getThumbnailKey(imageId: string) {
-        return `${imageId}-thumbnail.png`;
-    }
-
-    private constructor(
-        private readonly bucketName: string,
-        endpoint?: string,
-        publicEndpoint?: string,
-        credentials?: {
-            accessKeyId: string;
-            secretAccessKey: string;
-        },
-        region?: string,
-    ) {
         this.client = new S3Client({
             endpoint,
             credentials,
@@ -51,25 +42,16 @@ export class StorageClient {
         }
     }
 
-    static get instance(): StorageClient {
-        if (!this._instance) {
-            const credentials = process.env.STORAGE_ENDPOINT
-                ? {
-                      accessKeyId: process.env.STORAGE_ACCESS_KEY_ID!,
-                      secretAccessKey: process.env.STORAGE_SECRET!,
-                  }
-                : undefined;
+    static getImageKey(imageId: string) {
+        return `${imageId}.jpeg`;
+    }
 
-            this._instance = new StorageClient(
-                process.env.BUCKET_NAME!,
-                process.env.STORAGE_ENDPOINT,
-                process.env.STORAGE_PUBLIC_ENDPOINT,
-                credentials,
-                process.env.BUCKET_REGION,
-            );
-        }
+    static getBlurredImageKey(imageId: string) {
+        return `${imageId}-blurred.jpeg`;
+    }
 
-        return this._instance;
+    static getThumbnailKey(imageId: string) {
+        return `${imageId}-thumbnail.png`;
     }
 
     async putObject(key: string, data: Buffer): Promise<void> {

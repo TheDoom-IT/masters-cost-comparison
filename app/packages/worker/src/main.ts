@@ -1,9 +1,14 @@
 import PgBoss from "pg-boss";
 import "dotenv/config";
-import { DEFAULT_QUEUE, JobData, JobType } from "shared";
-import { processImage } from "./jobs/process-image.js";
+import { DEFAULT_QUEUE, JobData, JobType, StorageClient } from "shared";
+import { DatabaseClient } from "shared";
+import { JobProcessor } from "./job-processor.js";
 
 const main = async () => {
+    const databaseClient = new DatabaseClient();
+    const storageClient = new StorageClient();
+    const jobProcessor = new JobProcessor(databaseClient, storageClient);
+
     const boss = new PgBoss({
         connectionString: process.env.DATABASE_URL!,
         supervise: false,
@@ -20,7 +25,7 @@ const main = async () => {
             const data: JobData = job.data as JobData;
 
             if (data.type === JobType.IMAGE_PROCESSING) {
-                await processImage(data.imageId);
+                await jobProcessor.processImage(data.imageId);
             }
         }
     });

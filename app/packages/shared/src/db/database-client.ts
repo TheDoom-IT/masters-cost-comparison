@@ -6,19 +6,11 @@ import * as path from "path";
 import { PgUpdateSetSource } from "drizzle-orm/pg-core/query-builders/update";
 
 export class DatabaseClient {
-    private static _instance: DatabaseClient;
     private readonly db: ReturnType<typeof drizzle>;
 
-    private constructor(connectionString: string) {
+    constructor() {
+        const connectionString = process.env.DATABASE_URL!;
         this.db = drizzle(connectionString);
-    }
-
-    static get instance(): DatabaseClient {
-        if (!this._instance) {
-            this._instance = new DatabaseClient(process.env.DATABASE_URL!);
-        }
-
-        return this._instance;
     }
 
     async migrate() {
@@ -29,7 +21,8 @@ export class DatabaseClient {
                 "..",
                 "drizzle",
             ),
-            migrationsSchema: path.join(import.meta.dirname, "schema.js"),
+            migrationsSchema: "public",
+            migrationsTable: "migrations",
         });
     }
 

@@ -1,10 +1,15 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import { JobType, StorageClient } from "shared";
-import { QueueService } from "../queue/queue-service.js";
 import * as crypto from "crypto";
-import { DatabaseClient } from "shared/dist/db/database-client.js";
+import { DatabaseClient } from "shared";
+import { QueueServiceInterface } from "../queue/queue-service-interface.js";
 
-export const applyJobsRoutes = (fastify: FastifyInstance) => {
+export const applyJobsRoutes = (
+    fastify: FastifyInstance,
+    databaseClient: DatabaseClient,
+    storageClient: StorageClient,
+    queueService: QueueServiceInterface,
+) => {
     fastify.get(
         "/jobs/home",
         function (request: FastifyRequest, reply: FastifyReply) {
@@ -15,18 +20,18 @@ export const applyJobsRoutes = (fastify: FastifyInstance) => {
     fastify.get(
         "/jobs",
         async function (request: FastifyRequest, reply: FastifyReply) {
-            const allJobs = await DatabaseClient.instance.getImageJobs();
+            const allJobs = await databaseClient.getImageJobs();
             const jobs = await Promise.all(
                 allJobs.map(async (job) => ({
                     id: job.id,
                     processingTime: job.processingTime,
                     thumbnail: job.thumbnailBucketKey
-                        ? await StorageClient.instance.getPresignedUrl(
+                        ? await storageClient.getPresignedUrl(
                               job.thumbnailBucketKey,
                           )
                         : undefined,
                     blurred: job.blurredBucketKey
-                        ? await StorageClient.instance.getPresignedUrl(
+                        ? await storageClient.getPresignedUrl(
                               job.blurredBucketKey,
                           )
                         : undefined,
@@ -55,15 +60,12 @@ export const applyJobsRoutes = (fastify: FastifyInstance) => {
             const fileBuffer = await body.file.toBuffer();
 
             const id = crypto.randomUUID();
-            await StorageClient.instance.putObject(
+            await storageClient.putObject(
                 StorageClient.getImageKey(id),
                 fileBuffer,
             );
 
-            await DatabaseClient.instance.addImageJob(
-                id,
-                StorageClient.getImageKey(id),
-            );
+            await databaseClient.addImageJob(id, StorageClient.getImageKey(id));
 
             const jobData = {
                 name,
@@ -71,7 +73,7 @@ export const applyJobsRoutes = (fastify: FastifyInstance) => {
                 imageId: id,
             };
 
-            await QueueService.instance.createJob(jobData);
+            await queueService.createJob(jobData);
 
             reply.redirect("/jobs");
         },

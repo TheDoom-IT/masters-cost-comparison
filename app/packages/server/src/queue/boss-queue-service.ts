@@ -1,23 +1,15 @@
 import PgBoss from "pg-boss";
 import { DEFAULT_QUEUE, JobData } from "shared";
+import { QueueServiceInterface } from "./queue-service-interface.js";
 
-export class QueueService {
-    private static _instance: QueueService;
+export class BossQueueService implements QueueServiceInterface {
     private readonly boss: PgBoss;
 
-    private constructor() {
+    constructor() {
         this.boss = new PgBoss(process.env.DATABASE_URL!);
 
         // TODO: add better error handling/real logger here
         this.boss.on("error", console.error);
-    }
-
-    static get instance(): QueueService {
-        if (!this._instance) {
-            this._instance = new QueueService();
-        }
-
-        return this._instance;
     }
 
     async initQueue() {
