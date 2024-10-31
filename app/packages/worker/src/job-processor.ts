@@ -38,6 +38,7 @@ export class JobProcessor {
 
         await this.databaseClient.updateImageJob(imageId, {
             processingTime: time,
+            processedAt: new Date(),
             thumbnailBucketKey: thumbnailKey,
             blurredBucketKey: blurredImageKey,
         });

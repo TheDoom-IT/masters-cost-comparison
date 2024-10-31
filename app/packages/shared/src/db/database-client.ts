@@ -1,9 +1,11 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { imageJobs } from "./schema.js";
-import { eq, InferSelectModel } from "drizzle-orm";
+import { eq, InferSelectModel, count } from "drizzle-orm";
 import * as path from "path";
 import { PgUpdateSetSource } from "drizzle-orm/pg-core/query-builders/update";
+import { PaginationParams } from "../models/pagination-params.js";
+import { PaginatedQuery } from "../models/paginated-query.js";
 
 export class DatabaseClient {
     private readonly db: ReturnType<typeof drizzle>;
@@ -44,7 +46,30 @@ export class DatabaseClient {
             .execute();
     }
 
-    async getImageJobs(): Promise<InferSelectModel<typeof imageJobs>[]> {
-        return await this.db.select().from(imageJobs).execute();
+    async getImageJobs(
+        pagination: PaginationParams,
+    ): Promise<PaginatedQuery<InferSelectModel<typeof imageJobs>>> {
+        const offset = pagination.limit * (pagination.page - 1);
+
+        const jobsPromise = this.db
+            .select()
+            .from(imageJobs)
+            .offset(offset)
+            .limit(pagination.limit)
+            .execute();
+        const jobsCountPromise = this.db
+            .select({ count: count() })
+            .from(imageJobs)
+            .execute();
+
+        const [jobs, jobsCount] = await Promise.all([
+            jobsPromise,
+            jobsCountPromise,
+        ]);
+
+        return {
+            items: jobs,
+            totalItems: jobsCount[0].count,
+        };
     }
 }
