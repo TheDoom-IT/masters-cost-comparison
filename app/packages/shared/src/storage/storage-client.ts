@@ -51,7 +51,7 @@ export class StorageClient {
     }
 
     static getThumbnailKey(imageId: string) {
-        return `${imageId}-thumbnail.png`;
+        return `${imageId}-thumbnail.jpeg`;
     }
 
     async putObject(key: string, data: Buffer): Promise<void> {

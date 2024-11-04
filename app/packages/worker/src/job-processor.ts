@@ -19,13 +19,13 @@ export class JobProcessor {
 
         const blurredImage = await sharpObject
             .clone()
-            .blur(100)
+            .blur(50)
             .jpeg()
             .toBuffer();
 
         const thumbnail = await sharpObject
             .resize(200, 200, { fit: "inside" })
-            .png()
+            .jpeg()
             .toBuffer();
 
         const blurredImageKey = StorageClient.getBlurredImageKey(imageId);

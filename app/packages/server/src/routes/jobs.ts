@@ -13,7 +13,7 @@ export const applyJobsRoutes = (
     queueService: QueueServiceInterface,
 ) => {
     fastify.get(
-        "/jobs",
+        "/jobs/images",
         async function (request: FastifyRequest, reply: FastifyReply) {
             const pagination = getPaginationParams(request);
 
@@ -41,11 +41,11 @@ export const applyJobsRoutes = (
 
             const pages = Math.ceil(allJobs.totalItems / pagination.limit);
             const currentPage = pagination.page;
-            return reply.viewAsync("jobs/index", {
+            return reply.viewAsync("jobs/index_images", {
                 jobs,
-                previousPage: currentPage === 1 ? undefined : currentPage - 1,
+                previousPage: currentPage <= 1 ? undefined : currentPage - 1,
                 currentPage: currentPage,
-                nextPage: currentPage === pages ? undefined : currentPage + 1,
+                nextPage: currentPage >= pages ? undefined : currentPage + 1,
                 pages: pages,
             });
         },
@@ -83,7 +83,7 @@ export const applyJobsRoutes = (
 
             await queueService.createJob(jobData);
 
-            reply.redirect("/jobs");
+            reply.redirect("/jobs/images");
         },
     );
 };

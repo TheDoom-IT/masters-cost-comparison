@@ -1,10 +1,10 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
 import { imageJobs } from "./schema.js";
-import { eq, InferSelectModel, count } from "drizzle-orm";
+import { eq, InferSelectModel, count, desc } from "drizzle-orm";
 import * as path from "path";
 import { PgUpdateSetSource } from "drizzle-orm/pg-core/query-builders/update";
-import { PaginationParams } from "../models/pagination-params.js";
+import { PaginationParams } from "../models/index.js";
 import { PaginatedQuery } from "../models/paginated-query.js";
 
 export class DatabaseClient {
@@ -54,6 +54,7 @@ export class DatabaseClient {
         const jobsPromise = this.db
             .select()
             .from(imageJobs)
+            .orderBy(desc(imageJobs.createdAt))
             .offset(offset)
             .limit(pagination.limit)
             .execute();
