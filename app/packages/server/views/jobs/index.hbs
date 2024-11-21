@@ -11,23 +11,21 @@
     <table class="table table-dark table-striped">
         <thead>
         <tr>
-            <th></th>
             <th scope="col">Name</th>
+            <th scope="col">Type</th>
             <th scope="col">Time elapsed</th>
             <th scope="col">Processed at</th>
             <th scope="col">Created at</th>
-            <th scope="col">Download</th>
         </tr>
         </thead>
         <tbody>
         {{#each jobs as |job|}}
             <tr>
-                <td>{{#if job.thumbnail}}<img class="thumbnail" src="{{job.thumbnail}}" alt="thumbnail" width="50" height="50">{{/if}}</td>
                 <th class="align-middle" scope="row">{{job.id}}</th>
+                <th class="align-middle">{{job.type}}</th>
                 <td class="align-middle">{{job.processingTime}}</td>
                 <th class="align-middle">{{job.processedAt}}</th>
                 <th class="align-middle">{{job.createdAt}}</th>
-                <td class="align-middle">{{#if job.blurred}}<a href="{{job.blurred}}" target="_blank">Download</a> {{/if}}</td>
             </tr>
         {{/each}}
         </tbody>

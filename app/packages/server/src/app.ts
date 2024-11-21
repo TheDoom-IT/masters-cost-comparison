@@ -1,7 +1,7 @@
 import Fastify from "fastify";
 import fastifyView from "@fastify/view";
 import fastifyStatic from "@fastify/static";
-import fastifyMultipart from "@fastify/multipart";
+import fastifyFormBody from "@fastify/formbody";
 import Handlebars from "handlebars";
 import * as path from "path";
 import { getPartialsList } from "./utils/get-partials-list.js";
@@ -24,13 +24,10 @@ export const getFastifyAppInstance = () => {
 
     app.register(fastifyStatic, {
         root: path.join(import.meta.dirname, "..", "public"),
+        cacheControl: false,
     });
 
-    app.register(fastifyMultipart, {
-        attachFieldsToBody: true,
-        // limit files to 10MB
-        limits: { fileSize: 10 * 1024 * 1024 },
-    });
+    app.register(fastifyFormBody);
 
     return app;
 };

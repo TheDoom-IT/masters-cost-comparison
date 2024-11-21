@@ -1,46 +1,85 @@
-import { DatabaseClient } from "shared";
-import { StorageClient } from "shared";
-import sharp from "sharp";
+import { DatabaseClient, JobData, jobsTable, JobType } from "shared";
+import { InferSelectModel } from "drizzle-orm";
 
 export class JobProcessor {
-    constructor(
-        private readonly databaseClient: DatabaseClient,
-        private readonly storageClient: StorageClient,
-    ) {}
+    constructor(private readonly databaseClient: DatabaseClient) {}
 
-    async processImage(imageId: string) {
+    async processTask(data: JobData) {
         const start = new Date().getTime();
 
-        const image = await this.storageClient.getObject(
-            StorageClient.getImageKey(imageId),
-        );
-
-        const sharpObject = sharp(image);
-
-        const blurredImage = await sharpObject
-            .clone()
-            .blur(50)
-            .jpeg()
-            .toBuffer();
-
-        const thumbnail = await sharpObject
-            .resize(200, 200, { fit: "inside" })
-            .jpeg()
-            .toBuffer();
-
-        const blurredImageKey = StorageClient.getBlurredImageKey(imageId);
-        await this.storageClient.putObject(blurredImageKey, blurredImage);
-
-        const thumbnailKey = StorageClient.getThumbnailKey(imageId);
-        await this.storageClient.putObject(thumbnailKey, thumbnail);
+        switch (data.type) {
+            case JobType.CPU_TASK:
+                this.handleCPUTask();
+                break;
+            case JobType.MEMORY_TASK:
+                this.handleMemoryTask();
+                break;
+            case JobType.IO_TASK:
+                await this.handleIOTask();
+                break;
+            default:
+                break;
+        }
 
         const time = new Date().getTime() - start;
-
-        await this.databaseClient.updateImageJob(imageId, {
+        await this.databaseClient.updateJob(data.id, {
             processingTime: time,
             processedAt: new Date(),
-            thumbnailBucketKey: thumbnailKey,
-            blurredBucketKey: blurredImageKey,
         });
+    }
+
+    async handleIOTask(): Promise<InferSelectModel<typeof jobsTable>[]> {
+        // This calls DB multiple times to simulate IO operations
+
+        const result = [];
+
+        for (let x = 0; x < 10; x++) {
+            const page = await this.databaseClient.getJobs({
+                page: x + 1,
+                limit: 10,
+            });
+
+            result.push(...page.items);
+            await new Promise((res) => setTimeout(res, 100));
+        }
+
+        return result;
+    }
+
+    handleMemoryTask(): { data: string }[] {
+        // This produces around 500MB of memory usage
+
+        // Create a large array
+        const size = 700000;
+        const largeArray = new Array(size);
+
+        // Fill the array with large objects
+        for (let i = 0; i < size; i++) {
+            const data = "a".repeat(1024 * 1024);
+            largeArray.push({ data });
+        }
+
+        return largeArray;
+    }
+
+    handleCPUTask(): number[] {
+        const result: number[] = [];
+
+        // eslint-disable-next-line no-constant-condition
+        for (let x = 0; true; x++) {
+            if (this.isPrime(x)) {
+                result.push(x);
+                if (result.length === 20000) {
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+
+    private isPrime(num: number): boolean {
+        for (let i = 2; i < num; i++) if (num % i === 0) return false;
+        return num > 1;
     }
 }

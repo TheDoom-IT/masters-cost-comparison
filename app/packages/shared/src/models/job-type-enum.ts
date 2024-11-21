@@ -1,3 +1,5 @@
 export enum JobType {
-    IMAGE_PROCESSING = "Image processing",
+    CPU_TASK = "CPU task",
+    MEMORY_TASK = "Memory task",
+    IO_TASK = "IO task",
 }

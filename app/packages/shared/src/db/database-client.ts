@@ -1,18 +1,25 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import { migrate } from "drizzle-orm/node-postgres/migrator";
-import { imageJobs } from "./schema.js";
+import { jobsTable } from "./schema.js";
 import { eq, InferSelectModel, count, desc } from "drizzle-orm";
 import * as path from "path";
 import { PgUpdateSetSource } from "drizzle-orm/pg-core/query-builders/update";
-import { PaginationParams } from "../models/index.js";
+import { JobType, PaginationParams } from "../models/index.js";
 import { PaginatedQuery } from "../models/paginated-query.js";
+import pg from "pg";
 
 export class DatabaseClient {
     private readonly db: ReturnType<typeof drizzle>;
+    private readonly pool: pg.Pool;
 
     constructor() {
         const connectionString = process.env.DATABASE_URL!;
-        this.db = drizzle(connectionString);
+        this.pool = new pg.Pool({ connectionString });
+        this.db = drizzle(this.pool);
+    }
+
+    async close() {
+        await this.pool.end();
     }
 
     async migrate() {
@@ -28,48 +35,48 @@ export class DatabaseClient {
         });
     }
 
-    async addImageJob(id: string, bucketKey: string) {
-        await this.db.insert(imageJobs).values({
+    async addJob(id: string, type: JobType) {
+        await this.db.insert(jobsTable).values({
             id,
-            bucketKey,
+            type,
         });
     }
 
-    async updateImageJob(
+    async updateJob(
         id: string,
-        updateFields: PgUpdateSetSource<typeof imageJobs>,
+        updateFields: PgUpdateSetSource<typeof jobsTable>,
     ) {
         await this.db
-            .update(imageJobs)
+            .update(jobsTable)
             .set(updateFields)
-            .where(eq(imageJobs.id, id))
+            .where(eq(jobsTable.id, id))
             .execute();
     }
 
-    async getImageJobs(
+    async getJobs(
         pagination: PaginationParams,
-    ): Promise<PaginatedQuery<InferSelectModel<typeof imageJobs>>> {
+    ): Promise<PaginatedQuery<InferSelectModel<typeof jobsTable>>> {
         const offset = pagination.limit * (pagination.page - 1);
 
         const jobsPromise = this.db
             .select()
-            .from(imageJobs)
-            .orderBy(desc(imageJobs.createdAt))
+            .from(jobsTable)
+            .orderBy(desc(jobsTable.createdAt))
             .offset(offset)
             .limit(pagination.limit)
             .execute();
         const jobsCountPromise = this.db
             .select({ count: count() })
-            .from(imageJobs)
+            .from(jobsTable)
             .execute();
 
-        const [jobs, jobsCount] = await Promise.all([
+        const [items, jobsCount] = await Promise.all([
             jobsPromise,
             jobsCountPromise,
         ]);
 
         return {
-            items: jobs,
+            items,
             totalItems: jobsCount[0].count,
         };
     }

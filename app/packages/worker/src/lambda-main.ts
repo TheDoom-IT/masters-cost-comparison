@@ -1,10 +1,9 @@
-import { JobData, JobType, StorageClient } from "shared";
+import { JobData } from "shared";
 import { DatabaseClient } from "shared";
 import { JobProcessor } from "./job-processor.js";
 
 const databaseClient = new DatabaseClient();
-const storageClient = new StorageClient();
-const jobProcessor = new JobProcessor(databaseClient, storageClient);
+const jobProcessor = new JobProcessor(databaseClient);
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event: any) => {
@@ -27,7 +26,5 @@ export const handler = async (event: any) => {
 const processJob = async (jobData: any) => {
     const data: JobData = JSON.parse(jobData);
 
-    if (data.type === JobType.IMAGE_PROCESSING) {
-        await jobProcessor.processImage(data.imageId);
-    }
+    await jobProcessor.processTask(data);
 };
