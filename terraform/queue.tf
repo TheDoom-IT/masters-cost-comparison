@@ -6,7 +6,7 @@ resource "aws_sqs_queue" "worker_queue" {
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.worker_deadletter.arn
-    maxReceiveCount     = 4
+    maxReceiveCount     = local.max_jobs_per_invocation
   })
 }
 

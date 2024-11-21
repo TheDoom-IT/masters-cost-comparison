@@ -1,15 +1,20 @@
+locals {
+  max_jobs_per_invocation = 4
+}
+
 resource "aws_lambda_function" "worker" {
   function_name = "master-worker"
   role          = aws_iam_role.worker_role.arn
   handler       = "dist/lambda-main.handler"
   filename      = "lambda_function_payload.zip"
 
-  timeout     = 60
+  timeout = 60
   # TODO: define required memory size
-  memory_size = 256
+  memory_size   = 512
   architectures = ["x86_64"]
 
   runtime = "nodejs20.x"
+  layers = ["arn:aws:lambda:eu-west-1:580247275435:layer:LambdaInsightsExtension:53"]
 
   environment {
     variables = {
@@ -35,6 +40,12 @@ data "aws_iam_policy_document" "worker_assume_role" {
 resource "aws_iam_role" "worker_role" {
   name               = "master-worker-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.worker_assume_role.json
+}
+
+# for Lambda Insights
+resource "aws_iam_role_policy_attachment" "sqs_role_lambda_insights_attachment" {
+  role       = aws_iam_role.worker_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
 }
 
 # allow to read from SQS

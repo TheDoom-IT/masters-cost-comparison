@@ -6,3 +6,13 @@ terraform {
     }
   }
 }
+
+
+provider "aws" {
+  default_tags {
+    tags = {
+      Application = "Master"
+      Iteration   = var.iteration_tag
+    }
+  }
+}
