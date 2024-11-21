@@ -12,7 +12,7 @@ export class JobProcessor {
                 this.handleCPUTask();
                 break;
             case JobType.MEMORY_TASK:
-                this.handleMemoryTask();
+                await this.handleMemoryTaskAlternative();
                 break;
             case JobType.IO_TASK:
                 await this.handleIOTask();
@@ -44,6 +44,19 @@ export class JobProcessor {
         }
 
         return result;
+    }
+
+    async handleMemoryTaskAlternative(): Promise<Buffer[]> {
+        const buffers: Buffer[] = [];
+
+        for (let x = 0; x < 50; x++) {
+            const largeBuffer = Buffer.alloc(1024 * 1024 * 10); // 10 MB of memory
+            largeBuffer.fill(1);
+            buffers.push(largeBuffer);
+            await new Promise((res) => setTimeout(res, 10));
+        }
+
+        return buffers;
     }
 
     handleMemoryTask(): { data: string }[] {

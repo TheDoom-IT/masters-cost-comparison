@@ -16,7 +16,13 @@ const main = async () => {
 
     boss.on("error", console.error);
 
-    await boss.work(DEFAULT_QUEUE, { batchSize: 10 }, async (jobs) => {
+    const batchSize = process.env.BATCH_SIZE
+        ? parseInt(process.env.BATCH_SIZE)
+        : 5;
+
+    console.log(`Worker started with batch size: ${batchSize}.`);
+
+    await boss.work(DEFAULT_QUEUE, { batchSize }, async (jobs) => {
         console.log(`Received ${jobs.length} jobs.`);
 
         for (const job of jobs) {
