@@ -25,6 +25,7 @@ const main = async () => {
     await boss.work(DEFAULT_QUEUE, { batchSize }, async (jobs) => {
         console.log(`Received ${jobs.length} jobs.`);
 
+        // TODO: Process jobs in parallel (may improve performance in I/O tasks)
         for (const job of jobs) {
             const data: JobData = job.data as JobData;
 
