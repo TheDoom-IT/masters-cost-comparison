@@ -10,14 +10,14 @@ export const handler = async (event: any) => {
     console.log(`Received ${event.Records.length} jobs.`);
 
     const batchItemFailures = [];
-    for (const record of event.Records) {
+    await Promise.all(event.Records.map(async (record) => {
         try {
-            await processJob(record.body);
+            return await processJob(record.body);
         } catch (error) {
             console.log(`Failed to process job ${record.messageId}: ${error}`);
             batchItemFailures.push({ itemIdentifier: record.messageId });
         }
-    }
+    }));
 
     return { batchItemFailures };
 };
