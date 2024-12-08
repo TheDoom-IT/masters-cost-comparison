@@ -26,11 +26,13 @@ const main = async () => {
         console.log(`Received ${jobs.length} jobs.`);
 
         // process jobs in parallel (improves performance for I/O tasks)
-        await Promise.all(jobs.map(async (job) => {
-            const data: JobData = job.data as JobData;
+        await Promise.all(
+            jobs.map(async (job) => {
+                const data: JobData = job.data as JobData;
 
-            return jobProcessor.processTask(data);
-        }));
+                return jobProcessor.processTask(data);
+            }),
+        );
     });
 };
 
