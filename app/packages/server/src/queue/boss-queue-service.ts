@@ -17,6 +17,10 @@ export class BossQueueService implements QueueServiceInterface {
         await this.boss.createQueue(DEFAULT_QUEUE);
     }
 
+    async stop() {
+        await this.boss.stop();
+    }
+
     async createJob(jobData: JobData): Promise<string> {
         const newJob = await this.boss.send(DEFAULT_QUEUE, jobData);
         if (newJob === null) {
@@ -24,5 +28,11 @@ export class BossQueueService implements QueueServiceInterface {
         }
 
         return newJob;
+    }
+
+    async createJobInBatch(jobs: JobData[]): Promise<void> {
+        const toInsert = jobs.map(data => ({name: DEFAULT_QUEUE, data}));
+
+        await this.boss.insert(toInsert);
     }
 }
