@@ -6,7 +6,7 @@ resource "aws_sqs_queue" "worker_queue" {
 
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.worker_deadletter.arn
-    maxReceiveCount     = local.max_jobs_per_invocation
+    maxReceiveCount     = 4
   })
 }
 
@@ -17,7 +17,7 @@ resource "aws_lambda_event_source_mapping" "worker_queue_mapping" {
 
   function_response_types = ["ReportBatchItemFailures"]
 
-  batch_size = 5
+  batch_size = local.max_jobs_per_invocation
 }
 
 resource "aws_sqs_queue" "worker_deadletter" {

@@ -5,8 +5,8 @@ resource "aws_lambda_function" "server" {
   filename      = "lambda_function_payload.zip"
 
   timeout = 29 # API Gateway has a 30 second timeout
-  # TODO: define required memory size
-  memory_size   = 256
+  # The server uses around 110MB (90%) of memory
+  memory_size   = 128
   architectures = ["x86_64"]
 
   runtime = "nodejs20.x"

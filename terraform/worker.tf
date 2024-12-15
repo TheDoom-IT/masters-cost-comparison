@@ -1,5 +1,8 @@
 locals {
-  max_jobs_per_invocation = 4
+  # CPU - 1
+  # Memory - ???
+  # IO - ???
+  max_jobs_per_invocation = 5
 }
 
 resource "aws_lambda_function" "worker" {
@@ -9,8 +12,10 @@ resource "aws_lambda_function" "worker" {
   filename      = "lambda_function_payload.zip"
 
   timeout = 60
-  # TODO: define required memory size
-  memory_size   = 512
+  # CPU - 1024
+  # Memory - ???
+  # IO - ???
+  memory_size   = 1024
   architectures = ["x86_64"]
 
   runtime = "nodejs20.x"
