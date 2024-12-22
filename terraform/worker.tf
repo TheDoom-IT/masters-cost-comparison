@@ -1,7 +1,7 @@
 locals {
   # CPU - 1
-  # Memory - ???
-  # IO - ???
+  # Memory - 5
+  # IO - 10
   max_jobs_per_invocation = 5
 }
 
@@ -13,13 +13,13 @@ resource "aws_lambda_function" "worker" {
 
   timeout = 60
   # CPU - 1024
-  # Memory - ???
-  # IO - ???
-  memory_size   = 1024
+  # Memory - 5120 (validate) cannot use that much memory, AWS blocks over 3008MB
+  # IO - 128
+  memory_size   = 5200
   architectures = ["x86_64"]
 
   runtime = "nodejs20.x"
-  layers = ["arn:aws:lambda:eu-west-1:580247275435:layer:LambdaInsightsExtension:53"]
+  #  layers  = ["arn:aws:lambda:eu-west-1:580247275435:layer:LambdaInsightsExtension:53"]
 
   environment {
     variables = {
@@ -47,11 +47,11 @@ resource "aws_iam_role" "worker_role" {
   assume_role_policy = data.aws_iam_policy_document.worker_assume_role.json
 }
 
-# for Lambda Insights
-resource "aws_iam_role_policy_attachment" "sqs_role_lambda_insights_attachment" {
-  role       = aws_iam_role.worker_role.name
-  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
-}
+## for Lambda Insights
+#resource "aws_iam_role_policy_attachment" "sqs_role_lambda_insights_attachment" {
+#  role       = aws_iam_role.worker_role.name
+#  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
+#}
 
 # allow to read from SQS
 resource "aws_iam_role_policy_attachment" "sqs_role_attachment" {

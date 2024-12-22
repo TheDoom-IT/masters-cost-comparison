@@ -17,6 +17,9 @@ resource "aws_lambda_event_source_mapping" "worker_queue_mapping" {
 
   function_response_types = ["ReportBatchItemFailures"]
 
+  # wait 10 seconds for more messages to arrive before invoking the function
+  maximum_batching_window_in_seconds = 10
+
   batch_size = local.max_jobs_per_invocation
 }
 
