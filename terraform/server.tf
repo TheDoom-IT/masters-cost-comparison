@@ -10,7 +10,6 @@ resource "aws_lambda_function" "server" {
   architectures = ["x86_64"]
 
   runtime = "nodejs20.x"
-  #  layers  = ["arn:aws:lambda:eu-west-1:580247275435:layer:LambdaInsightsExtension:53"]
 
   environment {
     variables = {
@@ -38,12 +37,6 @@ resource "aws_iam_role" "server_role" {
   name               = "master-server-lambda-role"
   assume_role_policy = data.aws_iam_policy_document.server_assume_role.json
 }
-
-## for Lambda Insights
-#resource "aws_iam_role_policy_attachment" "server_role_lambda_insights_attachment" {
-#  role       = aws_iam_role.server_role.name
-#  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLambdaInsightsExecutionRolePolicy"
-#}
 
 resource "aws_iam_role_policy_attachment" "server_attachment" {
   role       = aws_iam_role.server_role.name
