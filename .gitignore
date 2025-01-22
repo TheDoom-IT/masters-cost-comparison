@@ -8,10 +8,18 @@ app/data
 
 # Terraform
 .terraform
-.terraform.lock.hcl
 terraform.tfstate
 terraform.tfstate.backup
 
 # packages
 app/server.zip
 app/worker.zip
+
+# virtual envs
+venv
+
+# traffic
+traffic/files
+
+# load-test
+load-test/results

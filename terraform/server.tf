@@ -14,7 +14,6 @@ resource "aws_lambda_function" "server" {
   environment {
     variables = {
       DATABASE_URL  = var.database_url
-      BUCKET_NAME   = aws_s3_bucket.files.bucket
       SQS_QUEUE_URL = aws_sqs_queue.worker_queue.url
     }
   }

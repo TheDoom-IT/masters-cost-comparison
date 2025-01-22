@@ -23,7 +23,6 @@ resource "aws_lambda_function" "worker" {
   environment {
     variables = {
       DATABASE_URL = var.database_url
-      BUCKET_NAME  = aws_s3_bucket.files.bucket
     }
   }
 }
