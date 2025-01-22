@@ -1,19 +1,19 @@
 import "dotenv/config";
-import {DatabaseClient, JobType} from "shared";
-import {BossQueueService} from "./queue/boss-queue-service.js";
+import { DatabaseClient, JobType } from "shared";
+import { BossQueueService } from "./queue/boss-queue-service.js";
 
 const main = async () => {
     const databaseClient = new DatabaseClient();
     const queueService = new BossQueueService();
     await queueService.initQueue();
 
-    const type = JobType.IO_TASK;
+    const type = JobType.CPU_TASK;
 
     const dbJobs = [];
     const queueJobs = [];
-    for (let i = 0; i < 10000; i++) {
+    for (let i = 0; i < 200; i++) {
         const id = crypto.randomUUID();
-        dbJobs.push({id, type});
+        dbJobs.push({ id, type });
         queueJobs.push({
             id,
             type,
@@ -25,6 +25,6 @@ const main = async () => {
 
     await databaseClient.close();
     await queueService.stop();
-}
+};
 
 main();

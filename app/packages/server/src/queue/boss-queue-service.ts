@@ -31,7 +31,7 @@ export class BossQueueService implements QueueServiceInterface {
     }
 
     async createJobInBatch(jobs: JobData[]): Promise<void> {
-        const toInsert = jobs.map(data => ({name: DEFAULT_QUEUE, data}));
+        const toInsert = jobs.map((data) => ({ name: DEFAULT_QUEUE, data }));
 
         await this.boss.insert(toInsert);
     }

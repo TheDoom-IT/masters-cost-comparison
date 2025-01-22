@@ -36,7 +36,7 @@ export class JobProcessor {
     // total	5.113s
     // memory	77312K
     async handleIOTask(): Promise<InferSelectModel<typeof jobsTable>[]> {
-        const result = [];
+        const result: InferSelectModel<typeof jobsTable>[] = [];
 
         for (let x = 0; x < 5; x++) {
             const page = await this.databaseClient.getJobs({
@@ -82,12 +82,9 @@ export class JobProcessor {
         const result: number[] = [];
 
         // eslint-disable-next-line no-constant-condition
-        for (let x = 0; true; x++) {
+        for (let x = 0; result.length < 30000; x++) {
             if (this.isPrime(x)) {
                 result.push(x);
-                if (result.length === 30000) {
-                    break;
-                }
             }
         }
 
@@ -95,7 +92,11 @@ export class JobProcessor {
     }
 
     private isPrime(num: number): boolean {
-        for (let i = 2; i < num; i++) if (num % i === 0) return false;
+        for (let i = 2; i < num; i++) {
+            if (num % i === 0) {
+                return false;
+            }
+        }
         return num > 1;
     }
 }
