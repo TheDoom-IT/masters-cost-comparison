@@ -1,12 +1,21 @@
+locals {
+  # CPU - 1
+  # Memory - 5
+  # IO - 10
+  max_jobs_per_invocation = 5
+}
+
 resource "aws_lambda_function" "worker" {
   function_name = "master-worker"
   role          = aws_iam_role.worker_role.arn
   handler       = "dist/lambda-main.handler"
   filename      = "lambda_function_payload.zip"
 
-  timeout     = 60
-  # TODO: define required memory size
-  memory_size = 256
+  timeout = 60
+  # CPU - 1024
+  # Memory - 5200
+  # IO - 128
+  memory_size   = 5200
   architectures = ["x86_64"]
 
   runtime = "nodejs20.x"
@@ -14,7 +23,6 @@ resource "aws_lambda_function" "worker" {
   environment {
     variables = {
       DATABASE_URL = var.database_url
-      BUCKET_NAME  = aws_s3_bucket.files.bucket
     }
   }
 }

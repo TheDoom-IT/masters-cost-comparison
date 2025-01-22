@@ -54,6 +54,11 @@ export const applyJobsRoutes = (
             const body = request.body as Record<string, any>;
             const type: JobType = body.type;
 
+            if (!Object.values(JobType).includes(type)) {
+                reply.code(400).send({ message: "Invalid job type" });
+                return;
+            }
+
             const id = crypto.randomUUID();
             await databaseClient.addJob(id, type);
 

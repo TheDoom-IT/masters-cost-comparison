@@ -9,15 +9,23 @@ const jobProcessor = new JobProcessor(databaseClient);
 export const handler = async (event: any) => {
     console.log(`Received ${event.Records.length} jobs.`);
 
-    const batchItemFailures = [];
-    for (const record of event.Records) {
-        try {
-            await processJob(record.body);
-        } catch (error) {
-            console.log(`Failed to process job ${record.messageId}: ${error}`);
-            batchItemFailures.push({ itemIdentifier: record.messageId });
-        }
-    }
+    const batchItemFailures: { itemIdentifier: string }[] = [];
+    await Promise.all(
+        event.Records.map(
+            async (record: { body: unknown; messageId: string }) => {
+                try {
+                    return await processJob(record.body);
+                } catch (error) {
+                    console.log(
+                        `Failed to process job ${record.messageId}: ${error}`,
+                    );
+                    batchItemFailures.push({
+                        itemIdentifier: record.messageId,
+                    });
+                }
+            },
+        ),
+    );
 
     return { batchItemFailures };
 };

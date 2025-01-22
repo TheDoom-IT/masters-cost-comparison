@@ -4,9 +4,9 @@ resource "aws_lambda_function" "server" {
   handler       = "dist/lambda-main.handler"
   filename      = "lambda_function_payload.zip"
 
-  timeout     = 29 # API Gateway has a 30 second timeout
-  # TODO: define required memory size
-  memory_size = 256
+  timeout = 29 # API Gateway has a 30 second timeout
+  # The server uses around 110MB (90%) of memory
+  memory_size   = 128
   architectures = ["x86_64"]
 
   runtime = "nodejs20.x"
@@ -14,7 +14,6 @@ resource "aws_lambda_function" "server" {
   environment {
     variables = {
       DATABASE_URL  = var.database_url
-      BUCKET_NAME   = aws_s3_bucket.files.bucket
       SQS_QUEUE_URL = aws_sqs_queue.worker_queue.url
     }
   }

@@ -42,6 +42,10 @@ export class DatabaseClient {
         });
     }
 
+    async addJobsInBatch(jobs: { id: string; type: JobType }[]) {
+        await this.db.insert(jobsTable).values(jobs).execute();
+    }
+
     async updateJob(
         id: string,
         updateFields: PgUpdateSetSource<typeof jobsTable>,
@@ -61,7 +65,7 @@ export class DatabaseClient {
         const jobsPromise = this.db
             .select()
             .from(jobsTable)
-            .orderBy(desc(jobsTable.createdAt))
+            .orderBy(desc(jobsTable.createdAt), desc(jobsTable.id))
             .offset(offset)
             .limit(pagination.limit)
             .execute();
