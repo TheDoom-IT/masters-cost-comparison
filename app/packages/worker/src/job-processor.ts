@@ -81,7 +81,6 @@ export class JobProcessor {
     handleCPUTask(): number[] {
         const result: number[] = [];
 
-        // eslint-disable-next-line no-constant-condition
         for (let x = 0; result.length < 30000; x++) {
             if (this.isPrime(x)) {
                 result.push(x);
