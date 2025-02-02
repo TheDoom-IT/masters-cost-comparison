@@ -41,11 +41,10 @@ graph_attr = {
     "pad": "0.2",
     "splines": "true"
 }
-with Diagram("JMeter testing platform", show=False, direction="TB", graph_attr=graph_attr):
+with Diagram("JMeter distributed testing", show=False, direction="TB", graph_attr=graph_attr):
     with Cluster(""):
-        instances = [EC2("JMeter slave 1"), EC2("JMeter slave 2"), EC2("JMeter slave 3")]
-
-    Client("JMeter master") >> instances
+        instances = [EC2("JMeter node 1"), EC2("JMeter node 2"), EC2("JMeter node 3"), EC2("JMeter node 4")]
+        EC2("JMeter controller node") >> instances
 
     instances >> Server("Application")
 
