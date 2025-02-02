@@ -12,3 +12,11 @@ cd jmeter/bin
 ./create-rmi-keystore.sh
 
 # copy the keystore rmi_keystore.jks to directory where the server agent is started
+
+
+# Running distributed tests
+# master
+JVM_ARGS="-Xms1g -Xmx1g" ../apache-jmeter-5.6.3/bin/jmeter -n -t ../TestPlan.jmx -l ./test-logs.log -R host1,host2 -e -o ./report
+
+# slave
+JVM_ARGS="-Xms1g -Xmx1g" ./apache-jmeter-5.6.3/bin/jmeter-server
