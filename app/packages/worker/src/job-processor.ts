@@ -4,18 +4,18 @@ import { InferSelectModel } from "drizzle-orm";
 export class JobProcessor {
     constructor(private readonly databaseClient: DatabaseClient) {}
 
-    async processTask(data: JobData) {
+    async processJob(data: JobData) {
         const start = new Date().getTime();
 
         switch (data.type) {
-            case JobType.CPU_TASK:
-                this.handleCPUTask();
+            case JobType.CPU_JOB:
+                this.handleCPUJob();
                 break;
-            case JobType.MEMORY_TASK:
-                await this.handleMemoryTask();
+            case JobType.MEMORY_JOB:
+                await this.handleMemoryJob();
                 break;
-            case JobType.IO_TASK:
-                await this.handleIOTask();
+            case JobType.IO_JOB:
+                await this.handleIOJob();
                 break;
             default:
                 break;
@@ -35,7 +35,7 @@ export class JobProcessor {
     // system	0.068s
     // total	5.113s
     // memory	77312K
-    async handleIOTask(): Promise<InferSelectModel<typeof jobsTable>[]> {
+    async handleIOJob(): Promise<InferSelectModel<typeof jobsTable>[]> {
         const result: InferSelectModel<typeof jobsTable>[] = [];
 
         for (let x = 0; x < 5; x++) {
@@ -58,7 +58,7 @@ export class JobProcessor {
     // system	0.376s
     // total	5.476s
     // memory	1088624K
-    async handleMemoryTask(): Promise<Buffer[]> {
+    async handleMemoryJob(): Promise<Buffer[]> {
         const buffers: Buffer[] = [];
 
         for (let x = 0; x < 100; x++) {
@@ -78,7 +78,7 @@ export class JobProcessor {
     // system	0.059s
     // total	5.674s
     // memory	70848K
-    handleCPUTask(): number[] {
+    handleCPUJob(): number[] {
         const result: number[] = [];
 
         for (let x = 0; result.length < 30000; x++) {

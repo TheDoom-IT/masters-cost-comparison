@@ -9,7 +9,7 @@ resource "aws_apigatewayv2_integration" "backend_lambda_integration" {
 
   description        = "Backend Lambda integration"
   integration_method = "POST" # must be POST for AWS_PROXY
-  integration_uri    = aws_lambda_function.server.invoke_arn
+  integration_uri    = aws_lambda_function.web.invoke_arn
 }
 
 resource "aws_apigatewayv2_route" "default_route" {
@@ -30,7 +30,7 @@ resource "aws_apigatewayv2_stage" "default_stage" {
 resource "aws_lambda_permission" "allow_api_gateway" {
   statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.server.function_name
+  function_name = aws_lambda_function.web.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_stage.default_stage.execution_arn}/*"
 }

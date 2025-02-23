@@ -12,7 +12,7 @@ terraform.tfstate
 terraform.tfstate.backup
 
 # packages
-app/server.zip
+app/web.zip
 app/worker.zip
 
 # virtual envs

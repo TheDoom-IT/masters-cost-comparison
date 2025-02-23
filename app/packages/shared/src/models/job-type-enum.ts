@@ -1,5 +1,5 @@
 export enum JobType {
-    CPU_TASK = "CPU task",
-    MEMORY_TASK = "Memory task",
-    IO_TASK = "IO task",
+    CPU_JOB = "CPU job",
+    MEMORY_JOB = "Memory job",
+    IO_JOB = "IO job",
 }

@@ -25,12 +25,12 @@ const main = async () => {
     await boss.work(DEFAULT_QUEUE, { batchSize }, async (jobs) => {
         console.log(`Received ${jobs.length} jobs.`);
 
-        // process jobs in parallel (improves performance for I/O tasks)
+        // process jobs in parallel (improves performance for I/O jobs)
         await Promise.all(
             jobs.map(async (job) => {
                 const data: JobData = job.data as JobData;
 
-                return jobProcessor.processTask(data);
+                return jobProcessor.processJob(data);
             }),
         );
     });

@@ -7,7 +7,7 @@ const main = async () => {
     const queueService = new BossQueueService();
     await queueService.initQueue();
 
-    const type = JobType.CPU_TASK;
+    const type = JobType.CPU_JOB;
 
     const dbJobs = [];
     const queueJobs = [];

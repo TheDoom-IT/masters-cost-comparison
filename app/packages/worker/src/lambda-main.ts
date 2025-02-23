@@ -34,5 +34,5 @@ export const handler = async (event: any) => {
 const processJob = async (jobData: any) => {
     const data: JobData = JSON.parse(jobData);
 
-    await jobProcessor.processTask(data);
+    await jobProcessor.processJob(data);
 };
