@@ -5,19 +5,19 @@ WORKDIR /app
 # install dependencies
 COPY package.json .
 COPY package-lock.json .
-COPY ./packages/server/package.json packages/server/package.json
+COPY ./packages/web/package.json packages/web/package.json
 COPY ./packages/shared/package.json ./packages/shared/package.json
-RUN npm install --workspace=packages/server --include-workspace-root
+RUN npm install --workspace=packages/web --include-workspace-root
 
 # build shared
 COPY ./packages/shared/src packages/shared/src
 COPY ./packages/shared/tsconfig.json packages/shared/tsconfig.json
 RUN npm run build --workspace=packages/shared
 
-# build server
-COPY ./packages/server/src packages/server/src
-COPY ./packages/server/tsconfig.json packages/server/tsconfig.json
-RUN npm run build --workspace=packages/server
+# build web
+COPY ./packages/web/src packages/web/src
+COPY ./packages/web/tsconfig.json packages/web/tsconfig.json
+RUN npm run build --workspace=packages/web
 
 RUN npm prune --omit=dev
 
@@ -32,10 +32,10 @@ COPY --from=builder /app/packages/shared/package.json /app/packages/shared/packa
 COPY --from=builder /app/packages/shared/dist /app/packages/shared/dist
 COPY packages/shared/drizzle /app/packages/shared/drizzle
 
-COPY --from=builder /app/packages/server/package.json /app/packages/server/package.json
-COPY --from=builder /app/packages/server/dist /app/packages/server/dist
-COPY packages/server/public /app/packages/server/public
-COPY packages/server/views /app/packages/server/views
+COPY --from=builder /app/packages/web/package.json /app/packages/web/package.json
+COPY --from=builder /app/packages/web/dist /app/packages/web/dist
+COPY packages/web/public /app/packages/web/public
+COPY packages/web/views /app/packages/web/views
 
 
-CMD ["npm", "run", "start", "--workspace=packages/server"]
+CMD ["npm", "run", "start", "--workspace=packages/web"]

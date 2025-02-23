@@ -1,11 +1,11 @@
-resource "aws_lambda_function" "server" {
-  function_name = "master-server"
-  role          = aws_iam_role.server_role.arn
+resource "aws_lambda_function" "web" {
+  function_name = "master-web"
+  role          = aws_iam_role.web_role.arn
   handler       = "dist/lambda-main.handler"
   filename      = "lambda_function_payload.zip"
 
   timeout = 29 # API Gateway has a 30 second timeout
-  # The server uses around 110MB (90%) of memory
+  # The web uses around 110MB (90%) of memory
   memory_size   = 128
   architectures = ["x86_64"]
 
@@ -19,7 +19,7 @@ resource "aws_lambda_function" "server" {
   }
 }
 
-data "aws_iam_policy_document" "server_assume_role" {
+data "aws_iam_policy_document" "web_assume_role" {
   statement {
     effect = "Allow"
 
@@ -32,18 +32,18 @@ data "aws_iam_policy_document" "server_assume_role" {
   }
 }
 
-resource "aws_iam_role" "server_role" {
-  name               = "master-server-lambda-role"
-  assume_role_policy = data.aws_iam_policy_document.server_assume_role.json
+resource "aws_iam_role" "web_role" {
+  name               = "master-web-lambda-role"
+  assume_role_policy = data.aws_iam_policy_document.web_assume_role.json
 }
 
-resource "aws_iam_role_policy_attachment" "server_attachment" {
-  role       = aws_iam_role.server_role.name
-  policy_arn = aws_iam_policy.server_lambda_policy.arn
+resource "aws_iam_role_policy_attachment" "web_attachment" {
+  role       = aws_iam_role.web_role.name
+  policy_arn = aws_iam_policy.web_lambda_policy.arn
 }
 
-resource "aws_iam_policy" "server_lambda_policy" {
-  name = "server-lambda-policy"
+resource "aws_iam_policy" "web_lambda_policy" {
+  name = "web-lambda-policy"
 
   policy = jsonencode({
     Version = "2012-10-17"
